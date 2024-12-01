@@ -1,0 +1,9 @@
+@echo off
+echo Starting Prometheus...
+start "" "C:\Users\gabri\OneDrive\Documentos\Estudos\Fatec\Localhost305 - API\API\Prometheus\prometheus\prometheus.exe" --config.file="C:\Users\gabri\OneDrive\Documentos\Estudos\Fatec\Localhost305 - API\API\Prometheus\prometheus\prometheus.yml" --web.listen-address=:9091
+
+echo Starting Grafana...
+start "" "C:\Users\gabri\OneDrive\Documentos\Estudos\Fatec\Localhost305 - API\API\Prometheus\grafana-v11.3.1\bin\grafana-server.exe" --homepath "C:\Users\gabri\OneDrive\Documentos\Estudos\Fatec\Localhost305 - API\API\Prometheus\grafana-v11.3.1"
+
+echo All services started. Press any key to exit...
+pause
