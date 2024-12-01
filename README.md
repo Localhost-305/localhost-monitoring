@@ -1,161 +1,121 @@
+# Documentação do DevOps de Monitoramento
 
-# Monitoramento com Prometheus e Grafana
+## O que é monitoramento e para que serve?
 
-Este projeto demonstra como configurar e utilizar o **Prometheus** e **Grafana** para monitorar um banco de dados MySQL, garantindo visibilidade sobre métricas de performance e saúde do sistema.
+Monitoramento é o processo contínuo de coleta, análise e visualização de dados de sistemas, aplicações e infraestrutura. Ele serve para:
 
----
+- Identificar problemas de desempenho ou falhas.
+- Prever possíveis interrupções ou gargalos.
+- Acompanhar métricas importantes em tempo real.
+- Garantir que os sistemas estejam funcionando conforme o esperado.
+- Ajudar na resolução rápida de incidentes, minimizando impactos no usuário final.
 
-## O que é monitoramento?
+No DevOps, o monitoramento é fundamental para a observabilidade do sistema, garantindo visibilidade e controle sobre os componentes da aplicação.
 
-**Monitoramento** é o processo de coletar, analisar e visualizar dados sobre o desempenho e a saúde de sistemas e aplicações. Ele ajuda a identificar problemas rapidamente, entender padrões de uso e melhorar a eficiência do sistema.
+## Ferramentas Utilizadas
 
----
+### Prometheus
 
-## O que é o Prometheus?
+O **Prometheus** é uma plataforma de monitoramento e alerta baseada em métricas. Ele coleta e armazena métricas numéricas de séries temporais, como o uso de CPU ou tráfego de rede.
 
-**Prometheus** é uma ferramenta de monitoramento e alerta de código aberto, criada para armazenar métricas em séries temporais. Ele coleta dados de sistemas e serviços configurados como alvos e oferece suporte para alertas e consultas avançadas.
+#### Características principais:
 
-### Recursos principais do Prometheus:
-- Coleta de métricas com base em _pull_ (o Prometheus busca as métricas dos serviços).
-- Linguagem de consulta (PromQL) para explorar e analisar os dados coletados.
-- Integração com ferramentas de visualização e alerta, como Grafana e Alertmanager.
+- Baseado em *pull model* (Prometheus busca dados nos alvos configurados).
+- Linguagem de consulta própria, o **PromQL**, para análises avançadas.
+- Suporte a alertas configuráveis por meio de um **Alertmanager**.
 
----
+### Grafana
 
-## O que é o Grafana?
+O **Grafana** é uma ferramenta de visualização que permite criar dashboards interativos a partir de várias fontes de dados, incluindo o Prometheus.
 
-**Grafana** é uma plataforma de análise e visualização de métricas. Ele permite criar painéis interativos e visuais para explorar dados coletados por ferramentas como Prometheus, MySQL, Elasticsearch, entre outras.
+#### Características principais:
 
-### Recursos principais do Grafana:
-- Dashboards customizáveis para visualizar dados em gráficos e tabelas.
-- Suporte a diversos bancos de dados e fontes de dados.
-- Alertas configuráveis baseados em condições personalizadas.
+- Dashboards personalizáveis.
+- Suporte a várias fontes de dados (Prometheus, MySQL, Elasticsearch, etc.).
+- Facilita a análise de métricas com gráficos e alertas visuais.
 
----
+## Processo de Configuração
 
-## Configuração do projeto
+### Passo a Passo de Configuração
 
-### Pré-requisitos
+#### Configuração do Prometheus
 
-- **Docker** e **Docker Compose** instalados no sistema.
-- Banco de dados **MySQL** em execução.
-- Conhecimentos básicos sobre o terminal/linha de comando.
+1. **Baixar e instalar o Prometheus**:
+    - Baixe a versão mais recente do Prometheus em [prometheus.io](https://prometheus.io).
+    - Extraia o conteúdo para o diretório desejado.
 
----
+2. **Configurar o arquivo `prometheus.yml`**:
+    - No diretório do Prometheus, edite o arquivo `prometheus.yml` para incluir os alvos a serem monitorados.
 
-### Passos para configurar e executar
+    ```yaml
+    global:
+      scrape_interval: 15s  # Intervalo de coleta das métricas
 
-#### 1. Instalar e configurar o MySQL Exporter
+    scrape_configs:
+      - job_name: "localhost-backend"
+         metrics_path: '/actuator/prometheus'
+         static_configs:
+          - targets: ["localhost:9090"]
+    ```
 
-O **MySQL Exporter** é uma ferramenta que expõe métricas do banco de dados MySQL para que o Prometheus possa coletá-las.
+3. **Testar o Prometheus**:
+    - Abra o terminal no diretório do Prometheus.
+    - Execute o comando:
+    ```bash
+    prometheus.exe --config.file=prometheus.yml --web.listen-address=:9091
+    ```
+    - Acesse [http://localhost:9091](http://localhost:9091) no navegador para verificar se o Prometheus está funcionando.
 
-1. **Crie um usuário no MySQL com permissões específicas**:
-   ```sql
-   CREATE USER 'exporter_user'@'%' IDENTIFIED BY 'your_password';
-   GRANT PROCESS, REPLICATION CLIENT, SHOW DATABASES ON *.* TO 'exporter_user'@'%';
-   FLUSH PRIVILEGES;
-   ```
+#### Configuração do Grafana
 
-2. **Configure o MySQL Exporter**:
-   - Baixe o MySQL Exporter para sua plataforma: [MySQL Exporter Releases](https://github.com/prometheus/mysqld_exporter/releases)
-   - Configure a variável `DATA_SOURCE_NAME` com as credenciais do usuário MySQL:
-     ```bash
-     export DATA_SOURCE_NAME='exporter_user:your_password@(localhost:3306)/'
-     ```
+1. **Baixar e instalar o Grafana**:
+    - Baixe o Grafana no site oficial: [grafana.com](https://grafana.com).
+    - Extraia o conteúdo para o diretório desejado.
 
-3. **Inicie o MySQL Exporter**:
-   ```bash
-   ./mysqld_exporter --web.listen-address=":9104"
-   ```
+2. **Configuração do grafana**:
+    - Crie um diretório no pasta do grafana _C:\caminho\para\grafana\data_   
+    2.1 **Configurar o defaults.ini**
+      - Vá até o arquivo defaults.ini _C:\caminho\para\grafana\conf\defaults.ini_
+      - Abra o arquivo defaults.ini com um editor de texto (como o Notepad++, VSCode ou Notepad).
+      - Procure pela seção chamada [paths]. Você pode fazer isso procurando a palavra paths no arquivo (geralmente ela está no início do arquivo).
+      - Dentro da seção [paths], você verá a linha data = <caminho atual>. Altere o valor para o novo caminho onde você deseja armazenar os dados do Grafana. Por exemplo: _data = C:/novo/caminho/para/grafana/data_
+      - Procure por _http_port=3000_ e coloque a porta do grafana. Que no caso é 3001
 
-4. **Verifique se as métricas estão sendo expostas**:
-   - Acesse `http://localhost:9104/metrics` no navegador.
+3. **Executar o servidor Grafana**:
+    - Navegue até o diretório `bin` dentro da pasta do Grafana.
+    - Execute o comando:
+    ```bash
+    grafana-server.exe --homepath "C:\caminho\para\grafana"
+    ```
+    - Acesse [http://localhost:3001](http://localhost:3001) no navegador.
 
----
+4. **Adicionar o Prometheus como fonte de dados no Grafana**:
+    - Faça login no Grafana (usuário: `admin`, senha padrão: `Api2024`).
 
-#### 2. Configurar o Prometheus
+### Automação com Arquivo .bat
 
-1. **Edite o arquivo de configuração** `prometheus.yml`:
-   ```yaml
-   global:
-     scrape_interval: 15s
+Para simplificar a execução dos serviços, foi criado um arquivo `.bat` que inicia tanto o Prometheus quanto o Grafana.
 
-   scrape_configs:
-     - job_name: "mysql"
-       static_configs:
-         - targets: ["localhost:9104"]  # Endereço onde o MySQL Exporter está rodando.
-   ```
+#### Exemplo de arquivo `.bat`:
 
-2. **Inicie o Prometheus**:
-   - Com Docker Compose:
-     ```bash
-     docker-compose up prometheus
-     ```
-   - Ou manualmente:
-     ```bash
-     ./prometheus --config.file=prometheus.yml
-     ```
+```bat
+@echo off
+echo Starting Prometheus...
+start "" "C:\caminho\para\prometheus\prometheus.exe" --config.file="C:\caminho\para\prometheus\prometheus.yml" --web.listen-address=:9091
 
-3. **Verifique o Prometheus**:
-   - Acesse `http://localhost:9090` no navegador para explorar as métricas.
+echo Starting Grafana...
+start "" "C:\caminho\para\grafana\bin\grafana-server.exe" --homepath "C:\caminho\para\grafana"
 
----
+echo All services started. Press any key to exit...
+pause
+```
+## Endpoints Disponíveis
 
-#### 3. Configurar o Grafana
+### Grafana
+- **URL**: `http://localhost:3001`
 
-1. **Inicie o Grafana**:
-   - Com Docker Compose:
-     ```bash
-     docker-compose up grafana
-     ```
-   - Ou manualmente:
-     ```bash
-     ./grafana-server
-     ```
+### Prometheus
+- **URL**: `http://localhost:9091`
 
-2. **Acesse o Grafana**:
-   - URL: `http://localhost:3000`
-   - Credenciais padrão: `admin` / `admin` (alterar ao logar pela primeira vez).
-
-3. **Adicione o Prometheus como fonte de dados**:
-   - No painel do Grafana, vá em **Configuration > Data Sources > Add Data Source**.
-   - Escolha **Prometheus** e configure a URL como `http://localhost:9090`.
-
-4. **Crie um painel**:
-   - No menu lateral, vá em **Create > Dashboard** e adicione gráficos com consultas ao Prometheus.
-
----
-
-## Exemplos de Métricas
-
-### Métricas disponíveis do MySQL Exporter
-
-- **`mysql_global_status_threads_connected`**: Número de threads conectadas no momento.
-- **`mysql_global_status_queries`**: Total de consultas executadas.
-- **`mysql_global_status_uptime`**: Tempo de atividade do servidor MySQL.
-
-### Exemplos de consultas no Prometheus
-
-- **Conexões ativas**:
-  ```promql
-  mysql_global_status_threads_connected
-  ```
-- **Taxa de consultas por segundo**:
-  ```promql
-  rate(mysql_global_status_queries[1m])
-  ```
-
----
-
-## Como saber se está funcionando?
-
-1. **No Prometheus**:
-   - Acesse `http://localhost:9090` e busque por métricas como `mysql_global_status_threads_connected`.
-
-2. **No Grafana**:
-   - Verifique se os gráficos mostram as métricas esperadas.
-   - Crie alertas para eventos específicos (como alto número de conexões ou consultas lentas).
-
----
-
-
+### Métricas do Prometheus (via Actuator)
+- **URL**: `http://localhost:9090/actuator/prometheus`
